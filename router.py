@@ -61,14 +61,27 @@ if __name__ == "__main__":
   # asocia el socket al par (ip, puerto)
   router_socket.bind((router_IP, int(router_puerto)))
 
-  # paquete de prueba manual
-  # IP_packet_v1 = bytes([127, 0, 0, 1]) + (8881).to_bytes(2, "big") + b"hola"
-  # parsed_IP_packet = parse_packet(IP_packet_v1)
-  # IP_packet_v2 = create_packet(parsed_IP_packet)
-  # verificar que ambos paquetes sean iguales
-  # print("IP_packet_v1 == IP_packet_v2 ? {}".format(IP_packet_v1 == IP_packet_v2))
+  router_address = (router_IP, int(router_puerto))
 
-  # prueba check_routes con destinos dentro y fuera de la red
-  print(check_routes(router_rutas, ("127.0.0.1", 8881)))
-  print(check_routes(router_rutas, ("127.0.0.1", 8883)))
-  print(check_routes(router_rutas, ("127.0.0.1", 8884)))
+  while True:
+    IP_packet, sender_address = router_socket.recvfrom(1024)
+    parsed_IP_packet = parse_packet(IP_packet)
+    destination_address = (parsed_IP_packet["ip"], parsed_IP_packet["puerto"])
+
+    # si el paquete es para este router
+    if destination_address == router_address:
+      # imprime mensaje sin headers
+      print(parsed_IP_packet["mensaje"].decode())
+    else:
+      # busca el siguiente salto
+      next_hop_address = check_routes(router_rutas, destination_address)
+      # si existe una ruta
+      if next_hop_address is None:
+        # ignora el paquete
+        print("No hay rutas hacia {} para paquete {}".format(destination_address, IP_packet))
+      else:
+        # informa el forward
+        print("redirigiendo paquete {} con destino final {} desde {} hacia {}".format(IP_packet, destination_address, router_address, next_hop_address))
+        # reenvía el paquete al siguiente salto
+        router_socket.sendto(IP_packet, next_hop_address)
+
