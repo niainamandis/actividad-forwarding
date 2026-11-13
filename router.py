@@ -1,6 +1,9 @@
 import sys
 import socket
 
+# guarda el próximo turno de round-robin de cada área
+rutas_visitadas = {}
+
 def parse_packet(IP_packet: bytes):
   # ip en los primeros 4 bytes
   ip = ".".join(str(byte) for byte in IP_packet[0:4])
@@ -24,6 +27,8 @@ def check_routes(routes_file_name: str, destination_address: tuple[str, int]) ->
   # ip de destino a entero
   destination_num = int.from_bytes(bytes(int(num) for num in destination_ip.split(".")), "big")
 
+  rutas_posibles = []
+
   with open(routes_file_name) as archivo:
     for linea in archivo:
       campos = linea.split()
@@ -41,10 +46,21 @@ def check_routes(routes_file_name: str, destination_address: tuple[str, int]) ->
       puerto_final = int(campos[2])
       # si la ip está en la red y el puerto en el rango
       if (destination_num & mascara) == (red_num & mascara) and puerto_inicial <= destination_puerto <= puerto_final:
-        # siguiente salto
-        return (campos[3], int(campos[4]))
+        # guarda la ruta que coincide
+        rutas_posibles.append(campos)
   # none si no hay ruta
-  return None
+  if len(rutas_posibles) == 0:
+    return None
+  # área con red y rango de puertos de la primera coincidencia
+  area = tuple(rutas_posibles[0][0:3])
+  # rutas que pertenecen a esa área
+  rutas_area = [ruta for ruta in rutas_posibles if tuple(ruta[0:3]) == area]
+  turno = rutas_visitadas.get(area, 0) # turno actual
+  ruta_elegida = rutas_area[turno % len(rutas_area)] #ruta correspondiente
+  # avanza el turno del área
+  rutas_visitadas[area] = turno + 1
+  # siguiente salto
+  return (ruta_elegida[3], int(ruta_elegida[4]))
 
 if __name__ == "__main__":
 
