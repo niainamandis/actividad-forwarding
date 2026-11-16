@@ -95,8 +95,12 @@ if __name__ == "__main__":
     parsed_IP_packet = parse_packet(IP_packet)
     destination_address = (parsed_IP_packet["ip"], parsed_IP_packet["puerto"])
 
+    # si el ttl no es mayor a 0
+    if parsed_IP_packet["ttl"] <= 0:
+      # ignora el paquete
+      print("Se recibió paquete {} con TTL 0".format(IP_packet))
     # si el paquete es para este router
-    if destination_address == router_address:
+    elif destination_address == router_address:
       # imprime mensaje sin headers
       print(parsed_IP_packet["mensaje"].decode())
     else:
