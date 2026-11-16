@@ -1,14 +1,14 @@
 import re
 
 # define los archivos de salida de cada router
-archivos = ["salida_ttl_R1.txt", "salida_ttl_R2.txt", "salida_ttl_R3.txt", "salida_ttl_R4.txt", "salida_ttl_R5.txt"]
+archivos = ["salidas/salida_ttl_R1.txt", "salidas/salida_ttl_R2.txt", "salidas/salida_ttl_R3.txt", "salidas/salida_ttl_R4.txt", "salidas/salida_ttl_R5.txt"]
 # define cuántas líneas se enviaron
 total_enviadas = 30
 
 if __name__ == "__main__":
 
   # lee las líneas de R5
-  with open("salida_ttl_R5.txt") as archivo:
+  with open("salidas/salida_ttl_R5.txt") as archivo:
     lineas_R5 = [linea.rstrip("\n") for linea in archivo]
 
   # cuenta las líneas que llegaron a R5
