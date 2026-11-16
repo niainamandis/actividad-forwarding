@@ -76,13 +76,6 @@ if __name__ == "__main__":
   print("router_puerto:", router_puerto)
   print("router_rutas:", router_rutas)
 
-  # paquete de prueba manualmente con ttl
-  IP_packet_v1 = bytes([127, 0, 0, 1]) + (8881).to_bytes(2, "big") + bytes([10]) + b"hola"
-  parsed_IP_packet = parse_packet(IP_packet_v1)
-  IP_packet_v2 = create_packet(parsed_IP_packet)
-  # verifica que ambos paquetes sean iguales
-  print("IP_packet_v1 == IP_packet_v2 ? {}".format(IP_packet_v1 == IP_packet_v2))
-
   # crea el socket udp
   router_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
   # asocia el socket al par (ip, puerto)
@@ -111,6 +104,10 @@ if __name__ == "__main__":
         # ignora el paquete
         print("No hay rutas hacia {} para paquete {}".format(destination_address, IP_packet))
       else:
+        # decrementa el ttl en 1 antes del forward
+        parsed_IP_packet["ttl"] -= 1
+        # recrea el paquete con el nuevo ttl
+        IP_packet = create_packet(parsed_IP_packet)
         # informa el forward
         print("redirigiendo paquete {} con destino final {} desde {} hacia {}".format(IP_packet, destination_address, router_address, next_hop_address))
         # reenvía el paquete al siguiente salto
