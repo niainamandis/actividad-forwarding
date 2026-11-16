@@ -9,18 +9,22 @@ def parse_packet(IP_packet: bytes):
   ip = ".".join(str(byte) for byte in IP_packet[0:4])
   # puerto en los siguientes 2 bytes
   puerto = int.from_bytes(IP_packet[4:6], "big")
+  # ttl en el siguiente byte
+  ttl = IP_packet[6]
   # mensaje en los bytes restantes
-  mensaje = IP_packet[6:]
+  mensaje = IP_packet[7:]
   # paquete parseado
-  return {"ip": ip, "puerto": puerto, "mensaje": mensaje}
+  return {"ip": ip, "puerto": puerto, "ttl": ttl, "mensaje": mensaje}
 
 def create_packet(parsed_IP_packet):
   # convierte la ip a 4 bytes
   ip_bytes = bytes(int(num) for num in parsed_IP_packet["ip"].split("."))
   # convierte el puerto a 2 bytes
   puerto_bytes = parsed_IP_packet["puerto"].to_bytes(2, "big")
+  # convierte el ttl a 1 byte
+  ttl_bytes = parsed_IP_packet["ttl"].to_bytes(1, "big")
   # paquete en bytes
-  return ip_bytes + puerto_bytes + parsed_IP_packet["mensaje"]
+  return ip_bytes + puerto_bytes + ttl_bytes + parsed_IP_packet["mensaje"]
 
 def check_routes(routes_file_name: str, destination_address: tuple[str, int]) -> tuple[str, int]:
   destination_ip, destination_puerto = destination_address
@@ -71,6 +75,13 @@ if __name__ == "__main__":
   print("router_IP:", router_IP)
   print("router_puerto:", router_puerto)
   print("router_rutas:", router_rutas)
+
+  # paquete de prueba manualmente con ttl
+  IP_packet_v1 = bytes([127, 0, 0, 1]) + (8881).to_bytes(2, "big") + bytes([10]) + b"hola"
+  parsed_IP_packet = parse_packet(IP_packet_v1)
+  IP_packet_v2 = create_packet(parsed_IP_packet)
+  # verifica que ambos paquetes sean iguales
+  print("IP_packet_v1 == IP_packet_v2 ? {}".format(IP_packet_v1 == IP_packet_v2))
 
   # crea el socket udp
   router_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
