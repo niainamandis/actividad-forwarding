@@ -9,9 +9,10 @@ if __name__ == "__main__":
   mensaje = sys.argv[3]
   IP_envio = sys.argv[4]
   puerto_envio = int(sys.argv[5])
+  ttl = int(sys.argv[6])
 
-  # arma el paquete con el destino final y el mensaje
-  parsed_IP_packet = {"ip": IP_router_final, "puerto": puerto_router_final, "mensaje": mensaje.encode()}
+  # arma el paquete con el destino final, ttl y el mensaje
+  parsed_IP_packet = {"ip": IP_router_final, "puerto": puerto_router_final, "ttl": ttl, "mensaje": mensaje.encode()}
   IP_packet = create_packet(parsed_IP_packet)
 
   # crea el socket udp

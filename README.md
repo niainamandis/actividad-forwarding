@@ -14,7 +14,7 @@ Simulación de un mini-Internet en python, donde cada router es un proceso con u
 ```
 .
 ├── router.py             # router: parse_packet, create_packet, check_routes y loop
-├── enviar.py             # envía un paquete (versión sin TTL)
+├── enviar.py             # envía un paquete 
 ├── prueba_router.py      # envía un archivo línea por línea con TTL
 ├── rutas/                # tablas de rutas por versión
 │   ├── v1/               # ejemplo 1 (2 routers)
